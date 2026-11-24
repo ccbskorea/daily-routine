@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>데일리 루틴</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="description" content="루틴 체크부터 수면·러닝·독서·필사·렌즈까지, 매일의 기록을 한 곳에">
+<meta name="theme-color" content="#F7F6FC">
+<meta name="color-scheme" content="light">
+
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon-180.png">
+<link rel="icon" sizes="192x192" href="./icons/icon-192.png">
+
+<!-- iOS 홈 화면 앱(PWA) 메타 -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="데일리 루틴">
+
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<div class="app">
+
+  <header class="hero">
+    <div class="hero-top">
+      <p class="today-label" id="todayLabel">11월 25일 수요일</p>
+      <button class="icon-btn" id="manageBtn" type="button" aria-label="루틴 관리">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M4 12h13M4 17h7" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><circle cx="17" cy="7" r="2.1" stroke="currentColor" stroke-width="1.9"/><circle cx="12" cy="17" r="2.1" stroke="currentColor" stroke-width="1.9"/></svg>
+      </button>
+    </div>
+    <h1 class="greeting" id="greeting">좋은 아침이에요, 유정 님</h1>
+    <p class="sub" id="heroSub">오늘도 작은 것부터 하나씩</p>
+  </header>
+
+  <main>
+    <!-- ===== 오늘 ===== -->
+    <section class="view active" id="view-today">
+      <section class="card summary" id="summaryCard" aria-label="오늘의 달성률">
+        <div class="summary-head">
+          <div class="rate-wrap">
+            <p class="summary-label">오늘의 달성률</p>
+            <p class="summary-rate"><span id="rateNum">0</span><span class="pct">%</span></p>
+          </div>
+          <div class="streak" id="streakBox">
+            <span class="streak-fire" aria-hidden="true">🔥</span>
+            <span class="streak-num" id="streakNum">0</span>
+            <span class="streak-unit">일 연속</span>
+          </div>
+        </div>
+        <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="bar">
+          <div class="bar-fill" id="barFill"></div>
+        </div>
+        <p class="summary-sub" id="summarySub">루틴을 체크해 보세요</p>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>오늘의 루틴</h2>
+          <span class="count" id="listCount">0 / 0</span>
+        </div>
+        <div id="routineGroups"></div>
+        <button class="add-btn" id="addBtn" type="button">
+          <span class="plus" aria-hidden="true">＋</span> 루틴 추가
+        </button>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>오늘의 기록</h2>
+          <span class="chip-muted">탭해서 바로 기록</span>
+        </div>
+        <div class="tile-grid" id="statusTiles"></div>
+      </section>
+    </section>
+
+    <!-- ===== 러닝·수면 ===== -->
+    <section class="view" id="view-run">
+      <section class="card">
+        <div class="card-head">
+          <h2>수면 기록</h2>
+          <span class="chip-muted" id="sleepAvg">7일 평균 —</span>
+        </div>
+        <div class="sleep-grid">
+          <label class="time-field">
+            <span>취침</span>
+            <input type="time" id="bedInput" value="">
+          </label>
+          <span class="arrow" aria-hidden="true">→</span>
+          <label class="time-field">
+            <span>기상</span>
+            <input type="time" id="wakeInput" value="">
+          </label>
+        </div>
+        <div class="sleep-result">
+          <span class="sleep-dur" id="sleepDur">—</span>
+          <span class="sleep-sub" id="sleepSub">시간을 넣으면 총 수면 시간이 계산돼요</span>
+        </div>
+        <div class="sleep-bars" id="sleepBars"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>러닝 기록</h2>
+          <span class="chip-muted" id="runTodayLabel">오늘</span>
+        </div>
+        <div class="run-grid">
+          <label class="field">
+            <span>거리 (km)</span>
+            <input type="number" inputmode="decimal" step="0.1" min="0" max="99" id="runDist" placeholder="3.0">
+          </label>
+          <div class="field">
+            <span>페이스 (분′초″)</span>
+            <div class="pace-inputs">
+              <input type="number" inputmode="numeric" min="0" max="59" id="paceMin" placeholder="5" aria-label="페이스 분">
+              <em>′</em>
+              <input type="number" inputmode="numeric" min="0" max="59" id="paceSec" placeholder="30" aria-label="페이스 초">
+              <em>″</em>
+            </div>
+          </div>
+        </div>
+        <button class="btn primary wide" id="runSave" type="button">러닝 저장</button>
+        <p class="autosave" id="runStatus">러닝을 저장하면 오늘 루틴의 ‘러닝 뛰기’도 자동 체크돼요</p>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>페이스 추이</h2>
+          <span class="chip-accent" id="paceDelta">—</span>
+        </div>
+        <div class="chart-wrap" id="chartWrap"></div>
+        <div class="best-row" id="bestRow"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>최근 러닝</h2>
+          <span class="count" id="runCount">0회</span>
+        </div>
+        <ul class="rec-list" id="runList"></ul>
+      </section>
+    </section>
+
+    <!-- ===== 기록 (독서·필사) ===== -->
+    <section class="view" id="view-log">
+      <section class="card">
+        <div class="card-head">
+          <h2>독서 기록</h2>
+          <span class="chip-muted" id="readDate">오늘</span>
+        </div>
+        <label class="field">
+          <span>읽고 있는 책</span>
+          <input type="text" id="bookInput" list="bookList" placeholder="책 제목" maxlength="60" autocomplete="off">
+          <datalist id="bookList"></datalist>
+        </label>
+        <label class="field">
+          <span>오늘 읽은 분량</span>
+          <input type="text" id="readAmount" placeholder="예: 32p, 2챕터" maxlength="24">
+        </label>
+        <label class="field">
+          <span>짧은 메모</span>
+          <textarea id="readMemo" rows="2" maxlength="200" placeholder="기억하고 싶은 부분 한 줄"></textarea>
+        </label>
+        <p class="autosave" id="readStatus">입력하면 자동으로 저장돼요</p>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>독서 기록 모아보기</h2>
+          <span class="count" id="readCount">0</span>
+        </div>
+        <ul class="rec-list" id="readList"></ul>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>오늘의 필사</h2>
+          <span class="chip-muted" id="quoteDate">오늘</span>
+        </div>
+        <textarea id="quoteInput" class="quote-input" rows="4" maxlength="300" placeholder="마음에 드는 한 문장을 옮겨 적어 보세요"></textarea>
+        <input type="text" id="quoteSource" class="text-input slim" placeholder="출처 (선택) · 책 제목, 작가" maxlength="60" autocomplete="off">
+        <p class="autosave" id="quoteStatus">입력하면 자동으로 저장돼요</p>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>필사 모음</h2>
+          <span class="count" id="quoteCount">0</span>
+        </div>
+        <ul class="quote-list" id="quoteList"></ul>
+      </section>
+    </section>
+
+    <!-- ===== 달력·렌즈 ===== -->
+    <section class="view" id="view-cal">
+      <section class="card calendar">
+        <div class="card-head cal-head">
+          <h2 id="calTitle">2026년 11월</h2>
+          <div class="cal-nav">
+            <button id="prevMonth" type="button" aria-label="이전 달">‹</button>
+            <button id="nextMonth" type="button" aria-label="다음 달">›</button>
+          </div>
+        </div>
+        <div class="weekdays" aria-hidden="true">
+          <span class="sun">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="sat">토</span>
+        </div>
+        <div class="grid" id="calGrid"></div>
+        <div class="legend">
+          <span><i class="lg full"></i>완료</span>
+          <span><i class="lg part"></i>일부</span>
+          <span><i class="lg none"></i>기록 없음</span>
+        </div>
+      </section>
+
+      <section class="card stats" aria-label="기록 요약">
+        <div class="stat">
+          <span class="stat-num" id="statMonth">0</span>
+          <span class="stat-label">이번 달 완료일</span>
+        </div>
+        <div class="divider"></div>
+        <div class="stat">
+          <span class="stat-num" id="statBest">0</span>
+          <span class="stat-label">최고 연속일</span>
+        </div>
+        <div class="divider"></div>
+        <div class="stat">
+          <span class="stat-num" id="statTotal">0</span>
+          <span class="stat-label">오늘 루틴</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>렌즈 트래커</h2>
+          <button class="mini-btn" id="lensAdd" type="button">＋ 새 렌즈</button>
+        </div>
+        <div id="lensActive"></div>
+        <p class="group-label history-label">지난 렌즈</p>
+        <ul class="rec-list" id="lensHistory"></ul>
+      </section>
+    </section>
+  </main>
+
+  <p class="footnote">모든 기록은 이 기기 브라우저에만 저장됩니다</p>
+</div>
+
+<!-- 하단 탭 바 -->
+<nav class="tabbar" aria-label="주요 화면">
+  <button class="tab active" type="button" data-tab="today" aria-current="page">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.4" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M8.2 12.4l2.6 2.5 4.9-5.2" stroke="currentColor" stroke-width="1.9" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>오늘</span>
+  </button>
+  <button class="tab" type="button" data-tab="run">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.6 13.4h3.2l2-5.6 3 9.4 2.3-6 1.6 2.2h4.7" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>러닝·수면</span>
+  </button>
+  <button class="tab" type="button" data-tab="log">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.8h9.6a2.4 2.4 0 012.4 2.4v12H7.4A2.4 2.4 0 015 16.8V4.8z" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linejoin="round"/><path d="M5 16.6a2.2 2.2 0 012.2-2.1H17" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>
+    <span>기록</span>
+  </button>
+  <button class="tab" type="button" data-tab="cal">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.6" width="16" height="14.4" rx="2.6" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M4 9.8h16M8.6 3.8v3.2M15.4 3.8v3.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    <span>달력·렌즈</span>
+  </button>
+</nav>
+
+<!-- 날짜별 기록 시트 -->
+<div class="overlay" id="dayOverlay" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="dayTitle">
+    <div class="grabber" aria-hidden="true"></div>
+    <div class="sheet-head">
+      <h2 id="dayTitle">11월 25일</h2>
+      <button class="close-btn" id="dayClose" type="button" aria-label="닫기">✕</button>
+    </div>
+    <div class="sheet-body" id="dayBody"></div>
+  </div>
+</div>
+
+<!-- 루틴 관리 시트 -->
+<div class="overlay" id="manageOverlay" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="manageTitle">
+    <div class="grabber" aria-hidden="true"></div>
+    <div class="sheet-head">
+      <h2 id="manageTitle">루틴 관리</h2>
+      <button class="close-btn" id="manageClose" type="button" aria-label="닫기">✕</button>
+    </div>
+    <div class="sheet-body">
+      <ul class="manage-list" id="manageList"></ul>
+      <button class="btn primary wide" id="manageAdd" type="button">＋ 새 루틴 추가</button>
+      <p class="sheet-note">루틴을 삭제해도 지난 기록은 그대로 남아요.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 루틴 추가/수정 모달 -->
+<div class="overlay center" id="editorOverlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="editorTitle">
+    <h2 id="editorTitle">루틴 추가</h2>
+    <p class="field-label">이모지</p>
+    <div class="emoji-grid" id="emojiGrid"></div>
+    <p class="field-label">루틴 이름</p>
+    <input id="nameInput" class="text-input" type="text" maxlength="30" placeholder="예: 물 한 잔 마시기" autocomplete="off" enterkeyhint="done">
+    <p class="field-label group-label-modal">시간대</p>
+    <div class="seg" id="groupSeg" role="group" aria-label="시간대 선택">
+      <button type="button" data-group="morning" class="sel">☀️ 모닝</button>
+      <button type="button" data-group="day">🌤 데이</button>
+      <button type="button" data-group="night">🌙 나이트</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" id="editorCancel" type="button">취소</button>
+      <button class="btn primary" id="editorSave" type="button">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 렌즈 등록/수정 모달 -->
+<div class="overlay center" id="lensOverlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="lensTitle">
+    <h2 id="lensTitle">새 렌즈 등록</h2>
+    <label class="field">
+      <span>제품명</span>
+      <input type="text" id="lensName" class="text-input slim" placeholder="예: 오아시스 1day" maxlength="40" autocomplete="off">
+    </label>
+    <div class="run-grid">
+      <label class="field">
+        <span>도수</span>
+        <input type="text" id="lensPower" class="text-input slim" placeholder="-3.00" maxlength="20" autocomplete="off">
+      </label>
+      <label class="field">
+        <span>권장 주기 (일)</span>
+        <input type="number" id="lensCycle" class="text-input slim" inputmode="numeric" min="1" max="365" value="30">
+      </label>
+    </div>
+    <label class="field">
+      <span>개봉일</span>
+      <input type="date" id="lensOpened" class="text-input slim">
+    </label>
+    <label class="field">
+      <span>메모 (선택)</span>
+      <input type="text" id="lensNote" class="text-input slim" placeholder="착용감, 구매처 등" maxlength="60" autocomplete="off">
+    </label>
+    <div class="modal-actions">
+      <button class="btn ghost" id="lensCancel" type="button">취소</button>
+      <button class="btn primary" id="lensSave" type="button">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 확인 다이얼로그 -->
+<div class="overlay center" id="confirmOverlay" hidden>
+  <div class="modal small" role="alertdialog" aria-modal="true" aria-labelledby="confirmText">
+    <p id="confirmText">정말 삭제할까요?</p>
+    <div class="modal-actions">
+      <button class="btn ghost" id="confirmNo" type="button">취소</button>
+      <button class="btn danger" id="confirmYes" type="button">확인</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="./app.js"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "name": "데일리 루틴",
+  "short_name": "데일리 루틴",
+  "description": "매일의 작은 루틴을 체크하고 기록하는 데일리 루틴 앱",
+  "lang": "ko",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "background_color": "#F7F6FC",
+  "theme_color": "#F7F6FC",
+  "categories": ["lifestyle", "health", "productivity"],
+  "icons": [
+    { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
