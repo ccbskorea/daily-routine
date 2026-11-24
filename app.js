@@ -441,8 +441,8 @@
   }
 
   function updateSleepResult() {
-    const bed = $('bedInput').value;
-    const wake = $('wakeInput').value;
+    const bed = readTimeStr($('bedInput'));
+    const wake = readTimeStr($('wakeInput'));
     const min = sleepMin({ bed, wake });
     const durEl = $('sleepDur');
     const subEl = $('sleepSub');
@@ -493,8 +493,8 @@
 
   function saveSleep() {
     const t = todayKey();
-    const bed = normalizeTime($('bedInput'));
-    const wake = normalizeTime($('wakeInput'));
+    const bed = readTimeStr($('bedInput'));
+    const wake = readTimeStr($('wakeInput'));
     if (!bed && !wake) delete state.sleep[t];
     else state.sleep[t] = { bed, wake };
     saveState();
@@ -503,23 +503,32 @@
     renderTiles();
   }
 
-  // "2330" → "23:30", "930" → "09:30", "7" → "07:00"(blur 시)
+  // 입력된 숫자에서 완성된 HH:MM만 꺼낸다 (미완성이면 '')
+  function readTimeStr(el) {
+    const d = (el.value || '').replace(/\D/g, '');
+    if (d.length !== 4) return '';
+    const h = Math.min(23, parseInt(d.slice(0, 2), 10) || 0);
+    const m = Math.min(59, parseInt(d.slice(2, 4), 10) || 0);
+    return `${pad(h)}:${pad(m)}`;
+  }
+
+  // "2330" → "23:30", "233" → "23:3"(입력 중) → blur 시 "23:30", "7" → "07:00"
   function normalizeTime(el, onBlur) {
-    const digits = (el.value || '').replace(/\D/g, '').slice(0, 4);
-    if (!digits) { el.value = ''; return ''; }
-    let h;
-    let m;
-    if (digits.length <= 2) {
-      h = digits;
-      m = onBlur ? '00' : '';
-    } else {
-      h = digits.slice(0, digits.length - 2);
-      m = digits.slice(-2);
+    let d = (el.value || '').replace(/\D/g, '').slice(0, 4);
+    if (!d) {
+      el.value = '';
+      return '';
     }
-    const hh = Math.min(23, parseInt(h, 10) || 0);
-    const mm = m === '' ? '' : Math.min(59, parseInt(m, 10) || 0);
-    el.value = mm === '' ? String(hh) : `${pad(hh)}:${pad(mm)}`;
-    return el.value.length >= 4 ? el.value : '';
+    if (!onBlur) {
+      el.value = d.length > 2 ? `${d.slice(0, 2)}:${d.slice(2)}` : d;
+      return readTimeStr(el);
+    }
+    if (d.length <= 2) d = `${d.padStart(2, '0')}00`;
+    else if (d.length === 3) d = `${d}0`;
+    const h = Math.min(23, parseInt(d.slice(0, 2), 10) || 0);
+    const m = Math.min(59, parseInt(d.slice(2, 4), 10) || 0);
+    el.value = `${pad(h)}:${pad(m)}`;
+    return el.value;
   }
 
   function renderChart() {
