@@ -19,7 +19,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="데일리 루틴">
 
-<link rel="stylesheet" href="./styles.css?v=4">
+<link rel="stylesheet" href="./styles.css?v=5">
 </head>
 <body>
 <div class="app">
@@ -153,9 +153,9 @@
         </div>
         <label class="field">
           <span>읽고 있는 책</span>
-          <input type="text" id="bookInput" list="bookList" placeholder="책 제목" maxlength="60" autocomplete="off">
-          <datalist id="bookList"></datalist>
+          <input type="text" id="bookInput" placeholder="책 제목" maxlength="60" autocomplete="off">
         </label>
+        <div class="chip-row" id="bookChips"></div>
         <label class="field">
           <span>오늘 읽은 분량</span>
           <input type="text" id="readAmount" placeholder="예: 32p, 2챕터" maxlength="24">
@@ -362,6 +362,6 @@
 
 <div class="toast" id="toast" hidden></div>
 
-<script src="./app.js?v=4"></script>
+<script src="./app.js?v=5"></script>
 </body>
 </html>

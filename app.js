@@ -545,7 +545,11 @@
       return;
     }
 
-    const recent = entries.slice(-10);
+    if (entries.length === 1) {
+      const e = entries[0];
+      wrap.innerHTML = `<div class="chart-single"><span class="cs-pace">${paceStr(e.pace)}</span><span class="cs-sub">첫 러닝 기록 · ${fmtKo(e.date)} · 1km당</span></div>`;
+    } else {
+      const recent = entries.slice(-10);
     const paces = recent.map((e) => e.pace);
     const lo = Math.min(...paces);
     const hi = Math.max(...paces);
@@ -586,6 +590,7 @@
         <text x="${PL}" y="${H - PB + 13}" font-size="9" fill="#A5A2B6" font-family="-apple-system, sans-serif">느림 ${paceStr(hi)}</text>
       </svg>
       <div class="chart-caption"><span>${fmtMD(recent[0].date)}</span><span>최근 ${n}회</span><span>${fmtMD(recent[n - 1].date)}</span></div>`;
+    }
 
     // 이전 기록 대비
     let deltaText = '기록 1회';
@@ -694,9 +699,23 @@
   }
 
   function renderBookList() {
-    const titles = [...new Set(Object.values(state.reading).map((r) => r && r.book).filter(Boolean))];
-    const dl = $('bookList');
-    dl.innerHTML = titles.map((x) => `<option value="${escapeHtml(x)}"></option>`).join('');
+    const titles = [...new Set(Object.values(state.reading).map((r) => r && r.book).filter(Boolean))].slice(0, 4);
+    const box = $('bookChips');
+    if (!box) return;
+    box.innerHTML = '';
+    if (!titles.length) return;
+    titles.forEach((title) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'book-chip';
+      b.textContent = title;
+      b.addEventListener('click', () => {
+        $('bookInput').value = title;
+        saveReading();
+        toast('책 제목을 채웠어요');
+      });
+      box.appendChild(b);
+    });
   }
 
   function saveReading() {
@@ -816,19 +835,24 @@
         continue;
       }
       const dateStr = `${y}-${pad(m + 1)}-${pad(dayNum)}`;
+      const isFuture = dateStr > tk;
       const st = dayStats(dateStr);
       const cls = ['day'];
-      if (st.total > 0 && st.full) cls.push('full');
-      else if (st.total > 0 && st.done > 0) cls.push('part');
-      else if (st.total > 0) cls.push('zero');
+      if (!isFuture) {
+        if (st.total > 0 && st.full) cls.push('full');
+        else if (st.total > 0 && st.done > 0) cls.push('part');
+        else if (st.total > 0) cls.push('zero');
+      }
       if (dateStr === tk) cls.push('today');
 
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = cls.join(' ');
       btn.dataset.date = dateStr;
-      btn.setAttribute('aria-label', `${m + 1}월 ${dayNum}일 ${st.total ? `달성률 ${st.rate}퍼센트` : '기록 없음'}`);
-      btn.innerHTML = `<span class="num">${dayNum}</span>${st.total > 0 && st.done > 0 && !st.full ? '<i class="dot"></i>' : ''}`;
+      btn.setAttribute('aria-label', isFuture
+        ? `${m + 1}월 ${dayNum}일 (예정)`
+        : `${m + 1}월 ${dayNum}일 ${st.total ? `달성률 ${st.rate}퍼센트` : '기록 없음'}`);
+      btn.innerHTML = `<span class="num">${dayNum}</span>${!isFuture && st.total > 0 && st.done > 0 && !st.full ? '<i class="dot"></i>' : ''}`;
       btn.addEventListener('click', () => openDay(dateStr));
       grid.appendChild(btn);
     }

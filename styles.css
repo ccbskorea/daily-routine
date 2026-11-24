@@ -590,6 +590,37 @@ body.locked{overflow:hidden}
   background:#FAF9FE;
   border-radius:15px;
 }
+
+.chart-single{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:4px;
+  padding:20px 12px;
+  border-radius:16px;
+  background:linear-gradient(160deg,#F7F5FF,#F0FAFF);
+}
+.cs-pace{font-size:26px;font-weight:800;letter-spacing:-.02em;color:var(--accent);font-variant-numeric:tabular-nums}
+.cs-sub{font-size:12px;font-weight:600;color:var(--ink-2)}
+
+.chip-row{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 12px}
+.chip-row:empty{display:none}
+.book-chip{
+  max-width:100%;
+  border:0;
+  border-radius:999px;
+  background:var(--accent-soft);
+  color:var(--accent);
+  font-family:inherit;
+  font-size:12px;
+  font-weight:700;
+  padding:6px 11px;
+  cursor:pointer;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.book-chip:active{transform:scale(.96)}
 .chart-caption{
   display:flex;
   justify-content:space-between;
