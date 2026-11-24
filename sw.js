@@ -1,5 +1,5 @@
 /* 데일리 루틴 서비스 워커 — 앱 껍데기를 캐시해 오프라인에서도 열리고, 온라인일 때는 항상 최신 파일을 쓴다 */
-const CACHE = 'daily-routine-v2';
+const CACHE = 'daily-routine-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -15,8 +15,8 @@ const ASSETS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE)
-      .then((cache) => cache.addAll(ASSETS))
-      .catch(() => {})
+      // 파일 하나가 빠져도 나머지는 캐시되도록 개별로 저장
+      .then((cache) => Promise.all(ASSETS.map((url) => cache.add(url).catch(() => {}))))
       .then(() => self.skipWaiting())
   );
 });
