@@ -493,14 +493,33 @@
 
   function saveSleep() {
     const t = todayKey();
-    const bed = $('bedInput').value;
-    const wake = $('wakeInput').value;
+    const bed = normalizeTime($('bedInput'));
+    const wake = normalizeTime($('wakeInput'));
     if (!bed && !wake) delete state.sleep[t];
     else state.sleep[t] = { bed, wake };
     saveState();
     updateSleepResult();
     renderSleepBars();
     renderTiles();
+  }
+
+  // "2330" → "23:30", "930" → "09:30", "7" → "07:00"(blur 시)
+  function normalizeTime(el, onBlur) {
+    const digits = (el.value || '').replace(/\D/g, '').slice(0, 4);
+    if (!digits) { el.value = ''; return ''; }
+    let h;
+    let m;
+    if (digits.length <= 2) {
+      h = digits;
+      m = onBlur ? '00' : '';
+    } else {
+      h = digits.slice(0, digits.length - 2);
+      m = digits.slice(-2);
+    }
+    const hh = Math.min(23, parseInt(h, 10) || 0);
+    const mm = m === '' ? '' : Math.min(59, parseInt(m, 10) || 0);
+    el.value = mm === '' ? String(hh) : `${pad(hh)}:${pad(mm)}`;
+    return el.value.length >= 4 ? el.value : '';
   }
 
   function renderChart() {
@@ -1214,10 +1233,14 @@
     $('manageAdd').addEventListener('click', () => openEditor(null));
     $('manageClose').addEventListener('click', () => closeOverlay('manageOverlay'));
 
-    $('bedInput').addEventListener('change', saveSleep);
-    $('wakeInput').addEventListener('change', saveSleep);
-    $('bedInput').addEventListener('input', updateSleepResult);
-    $('wakeInput').addEventListener('input', updateSleepResult);
+    ['bedInput', 'wakeInput'].forEach((id) => {
+      const el = $(id);
+      el.addEventListener('input', () => { normalizeTime(el); updateSleepResult(); });
+      el.addEventListener('blur', () => { normalizeTime(el, true); saveSleep(); });
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); normalizeTime(el, true); saveSleep(); el.blur(); }
+      });
+    });
 
     $('runSave').addEventListener('click', saveRun);
     ['runDist', 'paceMin', 'paceSec'].forEach((id) => {

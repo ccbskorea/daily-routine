@@ -86,18 +86,19 @@
         <div class="sleep-grid">
           <label class="time-field">
             <span>취침</span>
-            <input type="time" id="bedInput" value="">
+            <input type="text" id="bedInput" inputmode="numeric" maxlength="5" placeholder="23:30" autocomplete="off">
           </label>
           <span class="arrow" aria-hidden="true">→</span>
           <label class="time-field">
             <span>기상</span>
-            <input type="time" id="wakeInput" value="">
+            <input type="text" id="wakeInput" inputmode="numeric" maxlength="5" placeholder="07:10" autocomplete="off">
           </label>
         </div>
         <div class="sleep-result">
           <span class="sleep-dur" id="sleepDur">—</span>
           <span class="sleep-sub" id="sleepSub">시간을 넣으면 총 수면 시간이 계산돼요</span>
         </div>
+        <p class="autosave">숫자만 쳐도 23:30 처럼 자동으로 맞춰져요</p>
         <div class="sleep-bars" id="sleepBars"></div>
       </section>
 
