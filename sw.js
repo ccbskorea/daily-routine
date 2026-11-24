@@ -1,5 +1,5 @@
-/* 데일리 루틴 서비스 워커 — 앱 껍데기를 캐시해 오프라인에서도 열린다 */
-const CACHE = 'daily-routine-v1';
+/* 데일리 루틴 서비스 워커 — 앱 껍데기를 캐시해 오프라인에서도 열리고, 온라인일 때는 항상 최신 파일을 쓴다 */
+const CACHE = 'daily-routine-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -35,29 +35,16 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
-  // 페이지 이동은 네트워크 우선(업데이트 반영), 실패하면 캐시
-  if (req.mode === 'navigate') {
-    event.respondWith(
-      fetch(req)
-        .then((res) => {
+  // 네트워크 우선 → 실패하면 캐시 (업데이트가 바로 반영되고, 오프라인에서도 열린다)
+  event.respondWith(
+    fetch(req)
+      .then((res) => {
+        if (res && res.status === 200 && res.type === 'basic') {
           const copy = res.clone();
           caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
-          return res;
-        })
-        .catch(() => caches.match('./index.html'))
-    );
-    return;
-  }
-
-  // 정적 자산은 캐시 우선
-  event.respondWith(
-    caches.match(req).then((hit) => {
-      if (hit) return hit;
-      return fetch(req).then((res) => {
-        const copy = res.clone();
-        caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
+        }
         return res;
-      });
-    })
+      })
+      .catch(() => caches.match(req).then((hit) => hit || (req.mode === 'navigate' ? caches.match('./index.html') : Response.error())))
   );
 });
