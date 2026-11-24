@@ -1232,6 +1232,14 @@
     $('quoteInput').addEventListener('input', () => { clearTimeout(quoteTimer); quoteTimer = setTimeout(saveQuote, 700); });
     $('quoteSource').addEventListener('input', () => { clearTimeout(quoteTimer); quoteTimer = setTimeout(saveQuote, 700); });
 
+    // 앱을 빠져나가기 전에도 저장되도록 포커스를 잃을 때 즉시 저장
+    ['bookInput', 'readAmount', 'readMemo'].forEach((id) => {
+      $(id).addEventListener('blur', () => { clearTimeout(readTimer); saveReading(); });
+    });
+    ['quoteInput', 'quoteSource'].forEach((id) => {
+      $(id).addEventListener('blur', () => { clearTimeout(quoteTimer); saveQuote(); });
+    });
+
     $('lensAdd').addEventListener('click', () => openLensEditor(null));
     $('lensCancel').addEventListener('click', () => { closeOverlay('lensOverlay'); editingLensId = null; });
     $('lensSave').addEventListener('click', saveLens);
